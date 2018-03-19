@@ -5,14 +5,17 @@ import Sky from './Sky';
 import Ground from './Ground';
 import CannonBase from './CannonBase';
 import CannonPipe from './CannonPipe';
-import CannonBall from './CannonBall';
+
 import CurrentScore from './CurrentScore';
 import FlyingObject from './FlyingObject';
-import Heart from './Heart'
+
+import StartGame from './StartGame';
+import Title from './Title';
 
 
 const Canvas = (props) => {
-  const viewBox = [window.innerWidth / -2, 100 - window.innerHeight, window.innerWidth, window.innerHeight]
+  const gameHeight = 1200;
+  const viewBox = [window.innerWidth / -2, 100 - gameHeight, window.innerWidth, gameHeight]
   return (
     <svg
       id="aliens-go-home-canvas"
@@ -29,19 +32,42 @@ const Canvas = (props) => {
       <Ground />
       <CannonPipe rotation={props.angle} />
       <CannonBase />
-      <CannonBall position={{x: 0, y: -100}}/>
       <CurrentScore score={15} />
-      <FlyingObject position={{x: -150, y: -300}}/>
-      <FlyingObject position={{x: 150, y: -300}}/>
-      <Heart position={{x: -300, y: 35}} />
+
+      { !props.gameState.started && 
+        <g>
+          <StartGame onClick={() => props.startGame()} />
+          <Title />
+        </g> 
+      }
+      {props.gameState.flyingObjects.map(flyingObject => (
+        <FlyingObject
+          key={flyingObject.id}
+          position={flyingObject.position}
+        />
+      ))}
     </svg>
   )
 }
 
 Canvas.propTypes = {
   angle: PropTypes.number.isRequired,
+  gameState: PropTypes.shape({
+    started: PropTypes.bool.isRequired,
+    kills: PropTypes.number.isRequired,
+    lives: PropTypes.number.isRequired,
+    flyingObjects: PropTypes.arrayOf(
+      PropTypes.shape({
+        position: PropTypes.shape({
+          x: PropTypes.number.isRequired,
+          y: PropTypes.number.isRequired,
+        }).isRequired,
+        id: PropTypes.number.isRequired,
+      })
+    ).isRequired
+  }).isRequired,
   trackMouse: PropTypes.func.isRequired,
+  startGame: PropTypes.func.isRequired,
 };
-
 
 export default Canvas
